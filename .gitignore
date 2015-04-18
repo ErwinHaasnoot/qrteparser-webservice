@@ -64,3 +64,6 @@ target/
 
 db.sqlite3
 */migrations/*
+
+static/in/*.*
+static/out/*.*
