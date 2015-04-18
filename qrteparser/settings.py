@@ -37,6 +37,7 @@ INSTALLED_APPS = (
     'django.contrib.sessions',
     'django.contrib.messages',
     'django.contrib.staticfiles',
+    'qparser',  
 )
 
 MIDDLEWARE_CLASSES = (
@@ -82,3 +83,14 @@ USE_TZ = True
 # https://docs.djangoproject.com/en/1.7/howto/static-files/
 
 STATIC_URL = '/static/'
+
+
+# QRTEParser Specific settings
+
+from multiprocessing import Pool
+
+FILES_IN = 'static/in/'
+FILES_OUT = 'static/out/'
+
+
+WORKER_POOL = Pool(processes=5, maxtasksperchild=5)
