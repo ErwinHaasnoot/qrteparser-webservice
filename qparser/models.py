@@ -1,18 +1,16 @@
 from django.db import models
 
+from qrte_parser_python import QRTEParser, QRTEParserException
+
 # Create your models here.
 
 class DataFile(models.Model):
     """
         Contains reference to unprocessed files
     """
-    
-    ERR_UNKNOWN = -1
-    ERR_NONE = 0
-    
     ERR_CHOICES = (
-        (ERR_UNKNOWN, 'ERR_UNKNOWN'),
-        (ERR_NONE,'OK'),
+        (QRTEParserException.ERR_UNKNOWN, 'ERR_UNKNOWN'),
+        (QRTEParserException.ERR_NONE,'OK'),
     )
     
     name_in = models.TextField(help_text="Name of file as it was uploaded")
@@ -24,6 +22,8 @@ class DataFile(models.Model):
     processed = models.BooleanField(help_text="Processed yes/no",default=None)
     succeeded = models.NullBooleanField(help_text="Processing Successful yes/no",default=None)
     zipped = models.BooleanField(help_text="Uploaded file was zipped",default=None)
+    
+    send_log = models.BooleanField(help_text="Send log with e-mail true/false",default=True)
     
     error_code = models.IntegerField(help_text="Error code if Process unsuccesful",null=True, choices=ERR_CHOICES)
     error_msg = models.TextField(help_text="Short error msg if Process unsuccessful")
