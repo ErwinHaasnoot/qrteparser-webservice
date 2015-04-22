@@ -10,31 +10,32 @@ class QRTEParserLogger:
     
     DEFAULT_LEVEL = 0
     LISTENING_THRESHOLD = 0
-    def __init__(self, msg, level = None, stack_level = 0):
+    def __init__(self, formatstr, vals = (), level = None, stack_level = 0):
         caller = getframeinfo(stack()[1+stack_level][0])
         level = level or self.DEFAULT_LEVEL
         if level >= self.LISTENING_THRESHOLD:
+            msg = formatstr % vals
             print "[%s:%d] %s" % (caller.filename, caller.lineno, msg)
             
     @classmethod
-    def exception(cls,msg):
-        cls(msg="[EXCEPTION][!!!!] %s" % msg,level = cls.LEVEL_EXCEPTION, stack_level = 1)
+    def exception(cls,formatstr, vals = ()):
+        cls(formatstr="[EXCEPTION][!!!!] " + formatstr, vals = vals,level = cls.LEVEL_EXCEPTION, stack_level = 1)
             
     @classmethod
-    def error(cls,msg):
-        cls(msg="[ERROR] %s" % msg,level=cls.LEVEL_ERROR, stack_level = 1)
+    def error(cls,formatstr, vals = ()):
+        cls(formatstr="[ERROR] " + formatstr, vals = vals,level=cls.LEVEL_ERROR, stack_level = 1)
     
     @classmethod
-    def warning(cls,msg):
-        cls(msg="[WARNING] %s" % msg,level = cls.LEVEL_WARNING, stack_level = 1)
+    def warning(cls,formatstr, vals = ()):
+        cls(formatstr="[WARNING] " + formatstr, vals = vals,level = cls.LEVEL_WARNING, stack_level = 1)
     
     @classmethod
-    def silent(cls,msg):
-        cls(msg=msg, level=cls.LEVEL_SILENT, stack_level = 1) 
+    def silent(cls,formatstr, vals = ()):
+        cls(formatstr=formatstr, vals = vals, level=cls.LEVEL_SILENT, stack_level = 1)
         
     @classmethod
-    def spam(cls, msg):
-        cls(msg=msg, level=cls.LEVEL_SPAM, stack_level = 1)
+    def spam(cls, formatstr, vals = ()):
+        cls(formatstr=formatstr, vals = vals, level=cls.LEVEL_SPAM, stack_level = 1)
         
             
 

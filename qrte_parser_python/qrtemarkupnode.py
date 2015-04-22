@@ -95,20 +95,18 @@ class QRTEMarkUpNode():
         #Skip first two lines
         headers = csvgen.next()
         csvgen.next()
-        
         for row in csvgen:
             subject_data = OrderedDict(zip(headers, row))
             self._writeData(subject_data, global_data, columns, outfile)
-    
-    
+
     def _writeData(self, subject_data, level_data, columns, outfile):
         # Copy level_data
         level_data = OrderedDict([(k,level_data[k]) for k in level_data])
         for key in self.jsonCol:
             if key not in subject_data or subject_data[key] == '':
-                log.warning('Block with exit question: %s seems to be missing for subject %s. Is this intended?' % (key.split('_')[0],subject_data['V1']))
+                log.warning('Block with exit question: %s seems to be missing for subject %s. Is this intended?',(key.split('_')[0],subject_data['V1']))
         
-        for i in range(self.amount):
+        for i in xrange(self.amount):
             level_data.update(self.getLevelData(subject_data, level_data, i))
             
             if len(self.childs) != 0:
@@ -116,27 +114,31 @@ class QRTEMarkUpNode():
                     child._writeData(subject_data, level_data, columns, outfile)
             else:
                 csvwriter(outfile, level_data.values())
-        
-        
+
     def getLevelData(self, subject_data, level_data, index = -1):
         """
             Get data related to this node (this level)
         """
         
         # Get data based on columns related to this node
+        joinarr = ['','(%s)' % index]
+        addIndexCache = self.addIndex
+
         for col in self.columns:
             index_name = col
             data_name = self.columns[col]
             if index_name != data_name:
-                log('Mapping %s => %s' % (index_name, data_name))
-            if self.addIndex == True:
-                index_name += "(%s)" % (index + 1)
+                log('Mapping %s => %s', (index_name, data_name))
+            if addIndexCache == True:
+                joinarr[0] = index_name
+                index_name = ''.join(joinarr)
                 
             if data_name in level_data and index_name in subject_data:
                 level_data[data_name] = subject_data[index_name]
             else:
-                log.spam('AddIndex: %s for name %s' % (self.addIndex,self.name))
-                log.spam('Could not find %s in level_data or %s in subject_data' % (data_name, index_name))
+                pass
+                #log.spam('AddIndex: %s for name %s' % (self.addIndex,self.name))
+                #log.spam('Could not find %s in level_data or %s in subject_data' % (data_name, index_name))
                 
         for col in self.data:
             level_data[col] = self.data[col]
@@ -153,8 +155,8 @@ class QRTEMarkUpNode():
                     else:
                         continue
                 except:
-                    log.warning('Expected JSON in field: %s for subject %s, instead found: %s' % (key, subject_data['V1'], subject_data[key]))
-                    raise Exception("Could not load JSON string from subject data with key: %s. Expected JSON" % (key,))
+                    log.warning('Expected JSON in field: %s for subject %s, instead found: %s',(key, subject_data['V1'], subject_data[key]))
+                    raise Exception("Could not load JSON string from subject data with key: %s. Expected JSON",(key,))
                 for key in sdata:
                     level_data[key] = sdata[key]
         # Add name index
@@ -162,7 +164,7 @@ class QRTEMarkUpNode():
             level_data[self.name] = index
         
         
-        log.spam(level_data)
+        #log.spam(level_data)
         
         return level_data
                 
@@ -212,7 +214,7 @@ class QRTEMarkUpNode():
                     top_level['columns'][put_key] = put_val
                     
         top_level['childs'] = [blocks[k] for k in blocks]
-        log('top_level addIndex: %s' % top_level['addIndex'])
+        log('top_level addIndex: %s' , top_level['addIndex'])
         
         return node(top_level)
         
@@ -245,11 +247,11 @@ class QRTEMarkUpNode():
                 except:
                     # Exception("Subject %s misses QRTE_columns, partial response?") # TODO: Make this QRTEParserException
                     continue
-                log.spam('Exit questions column data: %s' % (data[node.QRTE_exitQuestions],))
+                #log.spam('Exit questions column data: %s' % (data[node.QRTE_exitQuestions],))
                 exit_questions = data[node.QRTE_exitQuestions].split(node.delimiter_exit)
                 
                 if not node.isUnique(exit_questions):
-                    log.warning("Expected unique exit questions for subject %s, not unique! - %s" % (subject_id,exit_questions)) #TODO: Make this QRTEParserException
+                    log.warning("Expected unique exit questions for subject %s, not unique! - %s",(subject_id,exit_questions)) #TODO: Make this QRTEParserException
                     exit_questions = node.makeUnique(exit_questions)
                 
                 block_ids = []
@@ -258,14 +260,14 @@ class QRTEMarkUpNode():
                     
                     trial_count = 1
                     block_id = None
-                    log.spam('Checking ExitQuestion: %s' % (exit_q,))
+                    #log.spam('Checking ExitQuestion: %s' % (exit_q,))
                     
                     assert "%s_1_TEXT(1)" % (exit_q,) in data, \
                         "Missing index 1 for exit question %s, make sure the row index numbering starts at 1 for the block with exit question %s" % (exit_q, exit_q)
                     while("%s_1_TEXT(%s)" % (exit_q, trial_count) in data):
                         trial_count += 1
                         block_id = block_id or data["%s_2_TEXT(%s)" % (exit_q, trial_count)]
-                        log.spam('block_id so far: %s for exit_q %s' % (block_id, exit_q))
+                        #log.spam('block_id so far: %s for exit_q %s' % (block_id, exit_q))
                     assert block_id is not None, \
                         "block_id is missing for block with exit question: %s" % exit_q #TODO: Make this QRTEParserException
                     
@@ -290,19 +292,19 @@ class QRTEMarkUpNode():
                     blocks[exit_q]['columns'] = dict(zip(predef_columns[block_id],predef_columns[block_id]))
                     blocks[exit_q]['amount'] = max(trial_count-1,blocks[exit_q]['amount'])
                     
-                    log.spam('Found %s trials' % (blocks[exit_q]['amount'],))
+                    log.spam('Found %s trials', (blocks[exit_q]['amount'],))
                         
                         
                 
                 assert node.isUnique(block_ids), \
                     "Expected unique block ids, not unique! - %s" % block_ids #TODO: Make this QRTEParserException
                     
-                log('Parsed subject %s successfully!' % subject_id)
+                log('Parsed subject %s successfully!', subject_id)
                 
-                log.silent('Found %s exit question%s for subject %s: %s' % (len(exit_questions),'' if len(exit_questions) == 1 else 's', subject_id, exit_questions))
+                log.silent('Found %s exit question%s for subject %s: %s', (len(exit_questions),'' if len(exit_questions) == 1 else 's', subject_id, exit_questions))
                 subject_id += 1
             except Exception as e:
-                log.error('Could not check subject %s, due to error %s. Attempting to ignore and continue..' % (data['V1'],e.message))
+                log.error('Could not check subject %s, due to error %s. Attempting to ignore and continue..', (data['V1'],e.message))
                 continue
             
         return headers,blocks,ignore_columns, exit_questions
