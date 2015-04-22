@@ -6,6 +6,7 @@ class QRTEParserLogger:
     LEVEL_SILENT = 1
     LEVEL_WARNING = 2
     LEVEL_ERROR = 3
+    LEVEL_EXCEPTION = 4
     
     DEFAULT_LEVEL = 0
     LISTENING_THRESHOLD = 0
@@ -14,6 +15,14 @@ class QRTEParserLogger:
         level = level or self.DEFAULT_LEVEL
         if level >= self.LISTENING_THRESHOLD:
             print "[%s:%d] %s" % (caller.filename, caller.lineno, msg)
+            
+    @classmethod
+    def exception(cls,msg):
+        cls(msg="[EXCEPTION][!!!!] %s" % msg,level = cls.LEVEL_EXCEPTION, stack_level = 1)
+            
+    @classmethod
+    def error(cls,msg):
+        cls(msg="[ERROR] %s" % msg,level=cls.LEVEL_ERROR, stack_level = 1)
     
     @classmethod
     def warning(cls,msg):

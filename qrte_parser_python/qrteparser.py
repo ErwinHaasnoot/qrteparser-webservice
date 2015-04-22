@@ -11,25 +11,27 @@ class QRTEParser:
     headers = []
     
     @classmethod
-    def parse(parser,file):
+    def parse(parser,file, outfile = None, exit_q_unique = True):
         
         # TODO: Wrap in try/except block
-        parser = QRTEParser(file)
+        parser = QRTEParser(file,outfile,exit_q_unique)
         parser._parse()
         
     
-    def __init__(self, file):
+    def __init__(self, file, outfile, exit_q_unique):
         self.file = file
+        self.outfile = outfile  or file + '_out'
         self.headers = []
+        self.exit_q_unique = exit_q_unique
         
         
     def _parse(self):
         
-        node = QRTEMarkUpNode.create(self.file)
-        node.writeData(self.file, postfix = '_out')
+        node = QRTEMarkUpNode.create(self.file, self.exit_q_unique)
+        node.writeData(self.file, self.outfile)
         
         
         
 if __name__ == "__main__":
-    QRTEParserLogger.LISTENING_THRESHOLD = 1
-    QRTEParser.parse('static/in/QRTE_Masked_Priming.csv')
+    print 'Cannot run directly'
+    exit()

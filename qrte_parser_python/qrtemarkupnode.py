@@ -15,7 +15,7 @@ class QRTEMarkUpNode():
     
     jsonCol = []
     
-    def __init__(self,node):
+    def __init__(self,node, exit_q_unique = True):
         self.colNames = None
         self.columns = {}
         self.data = {}
@@ -77,8 +77,7 @@ class QRTEMarkUpNode():
         else:
             return self.colNames
             
-    def writeData(self,file,postfix):
-        outfile = file + postfix
+    def writeData(self,file,outfile):
         columns = self.getColNames()
         
         # Ensure removal of output file
@@ -105,6 +104,9 @@ class QRTEMarkUpNode():
     def _writeData(self, subject_data, level_data, columns, outfile):
         # Copy level_data
         level_data = OrderedDict([(k,level_data[k]) for k in level_data])
+        for key in self.jsonCol:
+            if key not in subject_data or subject_data[key] == '':
+                log.warning('Block with exit question: %s seems to be missing for subject %s. Is this intended?' % (key.split('_')[0],subject_data['V1']))
         
         for i in range(self.amount):
             level_data.update(self.getLevelData(subject_data, level_data, i))
@@ -145,7 +147,14 @@ class QRTEMarkUpNode():
                 key += "(%s)" % (index + 1)
                 
                 #print key, subject_data
-                sdata = json.loads(subject_data[key])
+                try:
+                    if key in subject_data and subject_data[key] != '':
+                        sdata = json.loads(subject_data[key])
+                    else:
+                        continue
+                except:
+                    log.warning('Expected JSON in field: %s for subject %s, instead found: %s' % (key, subject_data['V1'], subject_data[key]))
+                    raise Exception("Could not load JSON string from subject data with key: %s. Expected JSON" % (key,))
                 for key in sdata:
                     level_data[key] = sdata[key]
         # Add name index
@@ -165,12 +174,12 @@ class QRTEMarkUpNode():
     
     
     @classmethod
-    def create(node, file):
+    def create(node, file, exit_q_unique = True):
         """
             Creates a QRTEMarkUpNode based on a data file
             Markup nodes determine the structure of the output file
         """
-        headers,blocks,ignore_columns, exit_questions = node.buildBlockMeta(file)
+        headers,blocks,ignore_columns, exit_questions = node.buildBlockMeta(file,exit_q_unique)
         
         predef_columns = node.getPredefinedColumns()
         
@@ -212,7 +221,7 @@ class QRTEMarkUpNode():
         return len(L) == len(set(L))
         
     @classmethod
-    def buildBlockMeta(node, file):
+    def buildBlockMeta(node, file, exit_q_unique):
         csvgen = csvreader(file)
         
         #Get headers
@@ -226,66 +235,75 @@ class QRTEMarkUpNode():
         next(csvgen)
         
         subject_id = 1
-        
         for values in csvgen:
-            data = dict(zip(headers,values))
-            
-            predef_columns = json.loads(data[node.QRTE_columns])
-            log.spam('Exit questions column data: %s' % (data[node.QRTE_exitQuestions],))
-            exit_questions = data[node.QRTE_exitQuestions].split(node.delimiter_exit)
-            
-            assert node.isUnique(exit_questions), \
-                "Expected unique exit questions, not unique! - %s" % exit_questions #TODO: Make this QRTEParserException
-            
-            block_ids = []
+            try:
                 
-            for exit_q in exit_questions:
+                data = dict(zip(headers,values))
                 
-                trial_count = 1
-                block_id = None
-                log.spam('Checking ExitQuestion: %s' % (exit_q,))
-                
-                assert "%s_1_TEXT(1)" % (exit_q,) in data, \
-                    "Missing index 1 for exit question %s, make sure the row index numbering starts at 1 for the block with exit question %s" % (exit_q, exit_q)
-                while("%s_1_TEXT(%s)" % (exit_q, trial_count) in data):
-                    trial_count += 1
-                    block_id = block_id or data["%s_2_TEXT(%s)" % (exit_q, trial_count)]
-                    log.spam('block_id so far: %s for exit_q %s' % (block_id, exit_q))
-                assert block_id is not None, \
-                    "block_id is missing for block with exit question: %s" % exit_q #TODO: Make this QRTEParserException
-                
-                block_ids += [block_id]
-                
-                if exit_q not in blocks:
-                    blocks[exit_q] = node.getBottomLevelNode()
-                    blocks[exit_q].update({
-                        'jsonCol': ["%s_1_TEXT" % exit_q],
-                        'name': '%sId' % exit_q,
-                    })
-                    
-                    ignore_columns += ["%s_1_TEXT" % exit_q, "%s_2_TEXT" % exit_q]
-                    
-                if block_id not in predef_columns:
-                    #TODO: Report warning
-                    log.warning("Could not find %s in column list. Did respondent miss this block, or it a partial response?")
+                try:
+                    predef_columns = json.loads(data[node.QRTE_columns])
+                except:
+                    # Exception("Subject %s misses QRTE_columns, partial response?") # TODO: Make this QRTEParserException
                     continue
+                log.spam('Exit questions column data: %s' % (data[node.QRTE_exitQuestions],))
+                exit_questions = data[node.QRTE_exitQuestions].split(node.delimiter_exit)
                 
+                if not node.isUnique(exit_questions):
+                    log.warning("Expected unique exit questions for subject %s, not unique! - %s" % (subject_id,exit_questions)) #TODO: Make this QRTEParserException
+                    exit_questions = node.makeUnique(exit_questions)
                 
-                
-                blocks[exit_q]['columns'] = dict(zip(predef_columns[block_id],predef_columns[block_id]))
-                blocks[exit_q]['amount'] = max(trial_count-1,blocks[exit_q]['amount'])
-                
-                log.spam('Found %s trials' % (blocks[exit_q]['amount'],))
+                block_ids = []
+                    
+                for exit_q in exit_questions:
+                    
+                    trial_count = 1
+                    block_id = None
+                    log.spam('Checking ExitQuestion: %s' % (exit_q,))
+                    
+                    assert "%s_1_TEXT(1)" % (exit_q,) in data, \
+                        "Missing index 1 for exit question %s, make sure the row index numbering starts at 1 for the block with exit question %s" % (exit_q, exit_q)
+                    while("%s_1_TEXT(%s)" % (exit_q, trial_count) in data):
+                        trial_count += 1
+                        block_id = block_id or data["%s_2_TEXT(%s)" % (exit_q, trial_count)]
+                        log.spam('block_id so far: %s for exit_q %s' % (block_id, exit_q))
+                    assert block_id is not None, \
+                        "block_id is missing for block with exit question: %s" % exit_q #TODO: Make this QRTEParserException
+                    
+                    block_ids += [block_id]
+                    
+                    if exit_q not in blocks:
+                        blocks[exit_q] = node.getBottomLevelNode()
+                        blocks[exit_q].update({
+                            'jsonCol': ["%s_1_TEXT" % exit_q],
+                            'name': '%sId' % exit_q,
+                        })
+                        
+                        ignore_columns += ["%s_1_TEXT" % exit_q, "%s_2_TEXT" % exit_q]
+                        
+                    if block_id not in predef_columns:
+                        #TODO: Report warning
+                        log.warning("Could not find %s in column list. Did respondent miss this block, or it a partial response?")
+                        continue
                     
                     
-            
-            assert node.isUnique(block_ids), \
-                "Expected unique block ids, not unique! - %s" % block_ids #TODO: Make this QRTEParserException
+                    
+                    blocks[exit_q]['columns'] = dict(zip(predef_columns[block_id],predef_columns[block_id]))
+                    blocks[exit_q]['amount'] = max(trial_count-1,blocks[exit_q]['amount'])
+                    
+                    log.spam('Found %s trials' % (blocks[exit_q]['amount'],))
+                        
+                        
                 
-            log('Parsed subject %s successfully!' % subject_id)
-            
-            log.silent('Found %s exit question%s for subject %s: %s' % (len(exit_questions),'' if len(exit_questions) == 1 else 's', subject_id, exit_questions))
-            subject_id += 1
+                assert node.isUnique(block_ids), \
+                    "Expected unique block ids, not unique! - %s" % block_ids #TODO: Make this QRTEParserException
+                    
+                log('Parsed subject %s successfully!' % subject_id)
+                
+                log.silent('Found %s exit question%s for subject %s: %s' % (len(exit_questions),'' if len(exit_questions) == 1 else 's', subject_id, exit_questions))
+                subject_id += 1
+            except Exception as e:
+                log.error('Could not check subject %s, due to error %s. Attempting to ignore and continue..' % (data['V1'],e.message))
+                continue
             
         return headers,blocks,ignore_columns, exit_questions
 

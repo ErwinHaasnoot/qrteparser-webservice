@@ -1,2 +1,3 @@
-from parser.py import QRTEParser
-from parser.py import QRTEParserException
+from qrteparser import QRTEParser
+from qrtelogger import QRTEParserLogger
+log = QRTEParserLogger
