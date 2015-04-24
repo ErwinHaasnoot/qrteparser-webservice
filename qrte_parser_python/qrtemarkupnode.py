@@ -136,9 +136,8 @@ class QRTEMarkUpNode():
             if data_name in level_data and index_name in subject_data:
                 level_data[data_name] = subject_data[index_name]
             else:
-                pass
-                #log.spam('AddIndex: %s for name %s' % (self.addIndex,self.name))
-                #log.spam('Could not find %s in level_data or %s in subject_data' % (data_name, index_name))
+                log.spam('AddIndex: %s for name %s', (self.addIndex,self.name))
+                log.spam('Could not find %s in level_data or %s in subject_data', (data_name, index_name))
                 
         for col in self.data:
             level_data[col] = self.data[col]
