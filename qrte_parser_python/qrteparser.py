@@ -23,8 +23,7 @@ class QRTEParser:
         self.outfile = outfile  or file + '_out'
         self.headers = []
         self.exit_q_unique = exit_q_unique
-        
-        
+
     def _parse(self):
         
         node = QRTEMarkUpNode.create(self.file, self.exit_q_unique)

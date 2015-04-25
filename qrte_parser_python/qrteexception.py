@@ -14,6 +14,14 @@ class QRTEParserException(Exception):
     ERR_MISSING_KEYS = 10
 
     WARNING_MISSING_JSON_COL_KEY = 20
+
+
+    ERR_ZIP_INVALID = 30
+    ERR_ZIP_CONTAINS_NO_FILES = 31
+    ERR_ZIP_CONTAINS_TWO_OR_MORE_FILES = 32
+    ERR_READ_CSV_FAILED = 33
+    ERR_ZIP_CONTAINS_NO_CSV = 34
+
     
     ERR_MSG = {
         ERR_UNKNOWN: 'ERR_UNKNOWN',
@@ -30,8 +38,17 @@ class QRTEParserException(Exception):
         ERR_TAG_WITH_INVALID_PARENTHESES: 'ERR_TAG_WITH_INVALID_PARENTHESES',
         ERR_LOAD_JSON_DATA:'ERR_LOAD_JSON_DATA',
         ERR_MISSING_KEYS:'ERR_MISSING_KEYS',
-        WARNING_MISSING_JSON_COL_KEY: 'WARNING_MISSING_JSON_COL_KEY'
+        WARNING_MISSING_JSON_COL_KEY: 'WARNING_MISSING_JSON_COL_KEY',
+
+        # CSV READ/WRITE ERROR
+        ERR_ZIP_INVALID: 'ERR_ZIP_INVALID',
+        ERR_ZIP_CONTAINS_NO_FILES: 'ERR_ZIP_CONTAINS_NO_FILES',
+        ERR_ZIP_CONTAINS_TWO_OR_MORE_FILES: 'ERR_ZIP_CONTAINS_TWO_OR_MORE_FILES',
+        ERR_ZIP_CONTAINS_NO_CSV: 'ERR_ZIP_CONTAINS_NO_CSV',
+        ERR_READ_CSV_FAILED: 'ERR_READ_CSV_FAILED'
     }
+
+
 
     ERR_MSG_VERBOSE = {
         ERR_UNKNOWN: 'This is an unknown error. Please report immediately to support@qrtengine.com',
@@ -45,7 +62,13 @@ class QRTEParserException(Exception):
         ERR_TAG_WITH_INVALID_PARENTHESES: 'Question tag found with incorrectly matched parentheses (, ). Please refrain from using parentheses at all in question tags.',
         ERR_LOAD_JSON_DATA:'Could not Load JSON data from mentioned key. Unknown cause, perhaps the Exit question does not have 2 answer fields? Please report immediately to support@qrtengine.com, with the survey .qsf and the original data file.',
         ERR_MISSING_KEYS:'Json column key could not be found. Unknown cause. Please report immediately to support@qrtengine.com, with the survey .qsf and the original data file.',
-        WARNING_MISSING_JSON_COL_KEY: 'The Subject seems to be missing a proper value for the mentioned Key column, This happens in partial responses, or when the subject simply hasn\'t run through the block.'
+        WARNING_MISSING_JSON_COL_KEY: 'The Subject seems to be missing a proper value for the mentioned Key column, This happens in partial responses, or when the subject simply hasn\'t run through the block.',
+
+        ERR_ZIP_INVALID: 'Invalid zip file, please ZIP correctly and try again.',
+        ERR_ZIP_CONTAINS_NO_FILES: 'Empty zip Archive. Please include at most one datafile in the zip archive.',
+        ERR_ZIP_CONTAINS_TWO_OR_MORE_FILES: 'ERR_ZIP_CONTAINS_TWO_OR_MORE_FILES',
+        ERR_ZIP_CONTAINS_NO_CSV: 'ERR_ZIP_CONTAINS_NO_CSV',
+        ERR_READ_CSV_FAILED: 'ERR_READ_CSV_FAILED'
     }
 
 
