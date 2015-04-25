@@ -25,15 +25,19 @@ class DataFile(models.Model):
     succeeded = models.NullBooleanField(help_text="Processing Successful yes/no",default=None)
     zipped_up = models.BooleanField(help_text="Uploaded file was zipped",default=None)
     zipped_down = models.BooleanField(help_text="Downloaded file should be zipped", default=None)
-    
-    send_log = models.BooleanField(help_text="Send log with e-mail true/false",default=True)
 
-    parse_start = models.DateTimeField(null=True)
-    parse_end = models.DateTimeField(null=True)
+    opt_skip_error = models.BooleanField(help_text="Skip QRTEParser exceptions if thrown", default=True)
     
-    error_code = models.IntegerField(help_text="Error code if Process unsuccesful",null=True, choices=ERR_CHOICES)
-    error_msg = models.TextField(help_text="Short error msg if Process unsuccessful", null=True)
-    eror_msg_verbose = models.TextField(help_text="Verbose error message if Process unsuccessful, log dump", null=True)
+    send_log = models.BooleanField(help_text="Send log with e-mail true/false",default=True, default=None)
+
+    parse_start = models.DateTimeField(help_text="Parse started at this time",null=True, default=None)
+    parse_end = models.DateTimeField(help_text="Parse ended at this time",null=True, default=None)
+    parse_duration = models.DateTimeField(help_text="Parse duration",null=True, default=None)
+
+    
+    error_code = models.IntegerField(help_text="Error code if Process unsuccesful",null=True, choices=ERR_CHOICES, default=None)
+    error_msg = models.TextField(help_text="Short error msg if Process unsuccessful", null=True, default=None)
+    error_msg_verbose = models.TextField(help_text="Verbose error message if Process unsuccessful, log dump", null=True, default=None)
 
     def process(self):
         wp = settings['WORKER_POOL']

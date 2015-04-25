@@ -15,8 +15,7 @@ def main(file = None, log_level = 0):
         log.warning('Can\'t parse an empty file - %s',(file,))
         exit()
     QRTEParserLogger.LISTENING_THRESHOLD = 2
-    QRTEParser.parse(file,exit_q_unique = False)
-    
+    QRTEParser.parse(file, outfile=file.split('.')[0]+'_out.csv ',exit_q_unique = False)
         
 
 if __name__ == "__main__":

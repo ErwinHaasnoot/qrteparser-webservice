@@ -1,7 +1,9 @@
 from qrtelogger import log
+from qrteexception import QRTEParserException
 from qrtecsv import csvreader, csvwriter
 import json,os
 from collections import OrderedDict
+from decimal import Decimal
 
 class QRTEMarkUpNode():
     
@@ -78,6 +80,12 @@ class QRTEMarkUpNode():
             return self.colNames
             
     def writeData(self,file,outfile):
+        """
+
+        :param file:
+        :param outfile:
+        :return:
+        """
         columns = self.getColNames()
         
         # Ensure removal of output file
@@ -86,7 +94,7 @@ class QRTEMarkUpNode():
         except OSError:
             pass
         
-        csvwriter(outfile, columns)
+        csvwriter.open(outfile)
         
         global_data = OrderedDict([(col,'') for col in columns])
         
@@ -94,31 +102,52 @@ class QRTEMarkUpNode():
         
         #Skip first two lines
         headers = csvgen.next()
+        # Fix file header
+        headers[0] = 'V1'
         csvgen.next()
         for row in csvgen:
             subject_data = OrderedDict(zip(headers, row))
             self._writeData(subject_data, global_data, columns, outfile)
 
+        csvwriter.close()
+
     def _writeData(self, subject_data, level_data, columns, outfile):
+        """
+
+        :param subject_data:
+        :param level_data:
+        :param columns:
+        :param outfile:
+        :return:
+        """
         # Copy level_data
         level_data = OrderedDict([(k,level_data[k]) for k in level_data])
+        subject = subject_data['V1']
+        ignore_json_col_keys = []
         for key in self.jsonCol:
             if key not in subject_data or subject_data[key] == '':
-                log.warning('Block with exit question: %s seems to be missing for subject %s. Is this intended?',(key.split('_')[0],subject_data['V1']))
-        
+                ignore_json_col_keys.append(key)
+                log.warning(QRTEParserException(code=QRTEParserException.WARNING_MISSING_JSON_COL_KEY,subject=subject, Key=key.split('_')[0]).message)
         for i in xrange(self.amount):
-            level_data.update(self.getLevelData(subject_data, level_data, i))
+            level_data.update(self.getLevelData(subject_data, level_data, i,ignore_json_col_keys))
             
             if len(self.childs) != 0:
                 for child in self.childs:
                     child._writeData(subject_data, level_data, columns, outfile)
             else:
-                csvwriter(outfile, level_data.values())
+                csvwriter.write(level_data.values())
 
-    def getLevelData(self, subject_data, level_data, index = -1):
+    def getLevelData(self, subject_data, level_data, index = -1, ignore_json_col_keys = []):
         """
-            Get data related to this node (this level)
+
+        :param subject_data:
+        :param level_data:
+        :param index:
+        :param ignore_json_col_keys:
+        :return:
         """
+
+        subject = subject_data['V1']
         
         # Get data based on columns related to this node
         joinarr = ['','(%s)' % index]
@@ -145,6 +174,9 @@ class QRTEMarkUpNode():
         
         # Get data from jsonColumns associated with this node
         for key in self.jsonCol:
+            if key in ignore_json_col_keys:
+                continue
+
             if self.addIndex:
                 key += "(%s)" % (index + 1)
                 
@@ -153,10 +185,12 @@ class QRTEMarkUpNode():
                     if key in subject_data and subject_data[key] != '':
                         sdata = json.loads(subject_data[key])
                     else:
-                        continue
+                        raise QRTEParserException(code=QRTEParserException.ERR_MISSING_KEYS,subject=subject,Key=key)
+                except QRTEParserException as e:
+                    log.warning(e.message)
+                    continue
                 except:
-                    log.warning('Expected JSON in field: %s for subject %s, instead found: %s',(key, subject_data['V1'], subject_data[key]))
-                    raise Exception("Could not load JSON string from subject data with key: %s. Expected JSON",(key,))
+                    raise QRTEParserException(code=QRTEParserException.ERR_LOAD_JSON_DATA,subject=subject,Key=key, Data=subject_data[key])
                 for key in sdata:
                     level_data[key] = sdata[key]
         # Add name index
@@ -180,6 +214,11 @@ class QRTEMarkUpNode():
         """
             Creates a QRTEMarkUpNode based on a data file
             Markup nodes determine the structure of the output file
+
+        :param node:
+        :param file:
+        :param exit_q_unique:
+        :return:
         """
         headers,blocks,ignore_columns, exit_questions = node.buildBlockMeta(file,exit_q_unique)
         
@@ -220,14 +259,27 @@ class QRTEMarkUpNode():
         
     @classmethod 
     def isUnique(cls,L):
+        """
+
+        :param L:
+        :return:
+        """
         return len(L) == len(set(L))
         
     @classmethod
     def buildBlockMeta(node, file, exit_q_unique):
+        """
+
+        :param node:
+        :param file:
+        :param exit_q_unique:
+        :return:
+        """
         csvgen = csvreader(file)
         
         #Get headers
         headers = next(csvgen)
+        headers[0] = 'V1'
         
         #Initialise block dictionary
         blocks = {}
@@ -236,23 +288,27 @@ class QRTEMarkUpNode():
         #Skip next line
         next(csvgen)
         
-        subject_id = 1
+        subject_id = 0
         for values in csvgen:
+            subject_id += 1
             try:
-                
                 data = dict(zip(headers,values))
+                subject = data['V1']
                 
                 try:
                     predef_columns = json.loads(data[node.QRTE_columns])
-                except:
-                    # Exception("Subject %s misses QRTE_columns, partial response?") # TODO: Make this QRTEParserException
-                    continue
+                except KeyError:
+                    raise QRTEParserException(code=QRTEParserException.ERR_MISSING_COLUMNS,subject=subject, SubjectId = subject_id)
+                except Exception as e:
+                    raise QRTEParserException(code=QRTEParserException.ERR_COLUMN_INVALID_JSON,subject=subject, SubjectId = subject_id, Data=data[node.QRTE_columns])
                 #log.spam('Exit questions column data: %s' % (data[node.QRTE_exitQuestions],))
                 exit_questions = data[node.QRTE_exitQuestions].split(node.delimiter_exit)
                 
                 if not node.isUnique(exit_questions):
-                    log.warning("Expected unique exit questions for subject %s, not unique! - %s",(subject_id,exit_questions)) #TODO: Make this QRTEParserException
-                    exit_questions = node.makeUnique(exit_questions)
+                    if not exit_q_unique:
+                        raise QRTEParserException(code=QRTEParserException.ERR_UNIQUE_EXITQ,subject=data['V1'],ExitQuestions=exit_questions, SubjectId = subject_id)
+                    else:
+                        exit_questions = node.makeUnique(exit_questions)
                 
                 block_ids = []
                     
@@ -261,15 +317,14 @@ class QRTEMarkUpNode():
                     trial_count = 1
                     block_id = None
                     #log.spam('Checking ExitQuestion: %s' % (exit_q,))
-                    
-                    assert "%s_1_TEXT(1)" % (exit_q,) in data, \
-                        "Missing index 1 for exit question %s, make sure the row index numbering starts at 1 for the block with exit question %s" % (exit_q, exit_q)
+                    if "%s_1_TEXT(1)" % (exit_q,) not in data or data["%s_1_TEXT(1)" % (exit_q,)] == '':
+                        raise QRTEParserException(code=QRTEParserException.ERR_MISSING_INDEX_1,subject=subject,ExitQuestion=exit_q, SubjectId = subject_id)
                     while("%s_1_TEXT(%s)" % (exit_q, trial_count) in data):
-                        trial_count += 1
                         block_id = block_id or data["%s_2_TEXT(%s)" % (exit_q, trial_count)]
+                        trial_count += 1
                         #log.spam('block_id so far: %s for exit_q %s' % (block_id, exit_q))
-                    assert block_id is not None, \
-                        "block_id is missing for block with exit question: %s" % exit_q #TODO: Make this QRTEParserException
+                    if block_id is None:
+                        raise QRTEParserException(code=QRTEParserException.ERR_MISSING_BLOCKID,subject=subject, SubjectId = subject_id)
                     
                     block_ids += [block_id]
                     
@@ -281,31 +336,28 @@ class QRTEMarkUpNode():
                         })
                         
                         ignore_columns += ["%s_1_TEXT" % exit_q, "%s_2_TEXT" % exit_q]
-                        
+
                     if block_id not in predef_columns:
-                        #TODO: Report warning
-                        log.warning("Could not find %s in column list. Did respondent miss this block, or it a partial response?")
-                        continue
-                    
-                    
-                    
+                        raise QRTEParserException(code=QRTEParserException.ERR_MISSING_BLOCKID_FROM_COLUMNS, subject=subject,BlockId = block_id, SubjectId = subject_id)
+
                     blocks[exit_q]['columns'] = dict(zip(predef_columns[block_id],predef_columns[block_id]))
                     blocks[exit_q]['amount'] = max(trial_count-1,blocks[exit_q]['amount'])
                     
                     log.spam('Found %s trials', (blocks[exit_q]['amount'],))
                         
                         
-                
-                assert node.isUnique(block_ids), \
-                    "Expected unique block ids, not unique! - %s" % block_ids #TODO: Make this QRTEParserException
+                if not node.isUnique(block_ids):
+                    raise QRTEParserException(code=QRTEParserException.ERR_BLOCKID_NOT_UNIQUE,subject=subject,BlockIds=block_ids, SubjectId = subject_id)
                     
-                log('Parsed subject %s successfully!', subject_id)
+                log('Parsed subject %s successfully!', subject)
                 
-                log.silent('Found %s exit question%s for subject %s: %s', (len(exit_questions),'' if len(exit_questions) == 1 else 's', subject_id, exit_questions))
-                subject_id += 1
-            except Exception as e:
-                log.error('Could not check subject %s, due to error %s. Attempting to ignore and continue..', (data['V1'],e.message))
+                log.silent('Found %s exit question %s for subject %s: %s', (len(exit_questions),'' if len(exit_questions) == 1 else 's', subject_id, exit_questions))
+            except QRTEParserException as e:
+                log.error(e.message)
                 continue
+            except Exception as e:
+                log.error('Could not check subject %s, due to error %s. This is a serious error, needs to be investigated.', (subject,e.message))
+                raise e
             
         return headers,blocks,ignore_columns, exit_questions
 
@@ -313,6 +365,11 @@ class QRTEMarkUpNode():
     
     @classmethod
     def splitkey(cls,key):
+        """
+
+        :param key:
+        :return:
+        """
         index = None
         tokens = key.split('(')
         
@@ -321,24 +378,35 @@ class QRTEMarkUpNode():
             if key[-2:-1] == 'V1': 
                 key = 'V1'
             return key, index
-        
-        assert tokens[-1][-1] == ')', \
-            "Expected key ending with ), instead got key with ( in it, but no ) for key %s" % key # TODO: Make this QRTEParserException
-        
+        if tokens[-1][-1] != ')':
+            raise QRTEParserException(code=QRTEParserException.ERR_TAG_WITH_INVALID_PARENTHESES,subject='Unknown',Key=key)
+
         index = int(tokens[-1][0:-1])
         key = ''.join(tokens[0:-1])
         return key, index
     
     @classmethod
     def getBottomLevelNode(cls):
+        """
+
+        :return:
+        """
         return dict(columns={},amount=1, addIndex = 1, name = None)
         
     @classmethod
     def getTopLevelNode(cls):
+        """
+
+        :return:
+        """
         return dict(childs=[],columns=cls.getPredefinedColumns(),amount=1,addIndex=0,name="topLevelId")
     
     @classmethod
     def getPredefinedColumns(cls):
+        """
+
+        :return:
+        """
         return dict(
             V1 = "ResponseID",
             V2 = "ResponseSet",
@@ -352,10 +420,19 @@ class QRTEMarkUpNode():
             V10 = "Finished")
     @classmethod        
     def getIgnoreColumns(cls):
+        """
+
+        :return:
+        """
         return [cls.QRTE_columns,cls.QRTE_idData,cls.QRTE_blockData,cls.QRTE_exitQuestions]
         
     @classmethod
     def makeUnique(cls,arr):
+        """
+
+        :param arr:
+        :return:
+        """
             
         seen = set()
         seen_add = seen.add
