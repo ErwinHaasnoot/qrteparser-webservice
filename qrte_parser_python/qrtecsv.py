@@ -1,8 +1,10 @@
 import csv
+from bufferedzipfile import EnhZipFile
 import gzip
+import os
 import zipfile
-import datetime
-
+import StringIO
+import time
 from qrteexception import QRTEParserException
 
 def csvreader(file):
@@ -26,7 +28,7 @@ def csvreader(file):
     elif compression == 'zip':
         zf = None
         try:
-            with zipfile.ZipFile(file) as zf:
+            with EnhZipFile(file) as zf:
                 files = zf.namelist()
                 if len(files) == 0:
                     raise QRTEParserException(code=QRTEParserException.ERR_ZIP_CONTAINS_NO_FILES,subject=None,ZipFile=file)
@@ -42,36 +44,28 @@ def csvreader(file):
             raise QRTEParserException(code=QRTEParserException.ERR_ZIP_INVALID,subject=None,ZipFile=file)
 
 class csvwriter():
-    """
 
-    """
+    MAXIMUM_FILE_SIZE = 524288000
+    zip = None
+    zipinfo = None
     writer = None
-    writehandler = None
+    filehandler = None
     @classmethod
     def open(cls,file):
-        """
+        #cls.zip = EnhZipFile(file + '.zip',compression=zipfile.ZIP_DEFLATED,mode='w')
 
-        :param file:
-        :return:
-        """
-        cls.writehandler = gzip.open(file,'wb')
-        cls.writer = csv.writer(cls.writehandler, delimiter=',',quotechar='"', quoting=csv.QUOTE_NONNUMERIC)
+        #cls.zipinfo = zipfile.ZipInfo(os.path.basename(file),time.localtime()[:6])
+
+        # cls.filehandler = cls.zip.start_entry(cls.zipinfo)
+        cls.filehandler = open(file,'w')
+        cls.writer = csv.writer(cls.filehandler, delimiter=',',quotechar='"', quoting=csv.QUOTE_NONNUMERIC)
 
     @classmethod
     def write(cls,arr):
-        """
-
-        :param arr:
-        :return:
-        """
         cls.writer.writerow(arr)
 
     @classmethod
     def close(cls):
-        """
-
-        :return:
-        """
-        cls.writehandler.close()
-
+        cls.filehandler.close()
+        #cls.zip.close()
         

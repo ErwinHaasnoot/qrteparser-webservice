@@ -87,6 +87,7 @@ class QRTEMarkUpNode():
             pass
 
         csvwriter.open(outfile)
+        csvwriter.write(columns)
 
         global_data = OrderedDict([(col, '') for col in columns])
 
@@ -117,7 +118,7 @@ class QRTEMarkUpNode():
         subject = subject_data['V1']
         ignore_json_col_keys = []
         for key in self.jsonCol:
-            if key not in subject_data or subject_data[key] == '':
+            if key+'(1)' not in subject_data or subject_data[key+'(1)'] == '':
                 ignore_json_col_keys.append(key)
                 log.warning(QRTEParserException(code=QRTEParserException.WARNING_MISSING_JSON_COL_KEY, subject=subject,
                                                 Key=key.split('_')[0]).message)

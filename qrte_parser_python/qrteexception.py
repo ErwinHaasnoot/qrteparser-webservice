@@ -21,6 +21,7 @@ class QRTEParserException(Exception):
     ERR_ZIP_CONTAINS_TWO_OR_MORE_FILES = 32
     ERR_READ_CSV_FAILED = 33
     ERR_ZIP_CONTAINS_NO_CSV = 34
+    ERR_OUT_FILE_TOO_LARGE = 35
 
     
     ERR_MSG = {
@@ -45,7 +46,8 @@ class QRTEParserException(Exception):
         ERR_ZIP_CONTAINS_NO_FILES: 'ERR_ZIP_CONTAINS_NO_FILES',
         ERR_ZIP_CONTAINS_TWO_OR_MORE_FILES: 'ERR_ZIP_CONTAINS_TWO_OR_MORE_FILES',
         ERR_ZIP_CONTAINS_NO_CSV: 'ERR_ZIP_CONTAINS_NO_CSV',
-        ERR_READ_CSV_FAILED: 'ERR_READ_CSV_FAILED'
+        ERR_READ_CSV_FAILED: 'ERR_READ_CSV_FAILED',
+        ERR_OUT_FILE_TOO_LARGE: 'ERR_OUT_FILE_TOO_LARGE'
     }
 
 
@@ -68,7 +70,8 @@ class QRTEParserException(Exception):
         ERR_ZIP_CONTAINS_NO_FILES: 'Empty zip Archive. Please include at most one datafile in the zip archive.',
         ERR_ZIP_CONTAINS_TWO_OR_MORE_FILES: 'ERR_ZIP_CONTAINS_TWO_OR_MORE_FILES',
         ERR_ZIP_CONTAINS_NO_CSV: 'ERR_ZIP_CONTAINS_NO_CSV',
-        ERR_READ_CSV_FAILED: 'ERR_READ_CSV_FAILED'
+        ERR_READ_CSV_FAILED: 'ERR_READ_CSV_FAILED',
+        ERR_OUT_FILE_TOO_LARGE: 'Output file can\'t be too large. Please parse locally instead.'
     }
 
 
