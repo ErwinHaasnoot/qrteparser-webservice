@@ -1,10 +1,6 @@
 import csv
 from bufferedzipfile import EnhZipFile
 import gzip
-import os
-import zipfile
-import StringIO
-import time
 from qrteexception import QRTEParserException
 
 def csvreader(file):
@@ -57,7 +53,8 @@ class csvwriter():
         #cls.zipinfo = zipfile.ZipInfo(os.path.basename(file),time.localtime()[:6])
 
         # cls.filehandler = cls.zip.start_entry(cls.zipinfo)
-        cls.filehandler = open(file,'w')
+        cls.filehandler = gzip.open(file+'.gz','wb')
+        # cls.filehandler = open(file,'wb')
         cls.writer = csv.writer(cls.filehandler, delimiter=',',quotechar='"', quoting=csv.QUOTE_NONNUMERIC)
 
     @classmethod
@@ -66,6 +63,8 @@ class csvwriter():
 
     @classmethod
     def close(cls):
+
+
         cls.filehandler.close()
         #cls.zip.close()
         
