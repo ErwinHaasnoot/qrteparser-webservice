@@ -1,32 +1,40 @@
-from django.shortcuts import render
-from django.http import HttpResponseRedirect
+# -*- coding: utf-8 -*-
 from django.shortcuts import render_to_response
-from django.conf import settings
-from .models import DataFile
-from .forms import UploadFileForm
-# Create your views here.
+from django.template import RequestContext
+from django.http import HttpResponseRedirect
+from django.core.urlresolvers import reverse
 
-# Imaginary function to handle an uploaded file.
+from qparser.models import DataFile
+from qparser.forms import DataFileForm
 
-def upload_file(request):
+
+def list(request):
+    # Handle file upload
     if request.method == 'POST':
-        form = UploadFileForm(request.POST, request.FILES)
+        form = DataFileForm(request.POST, request.FILES)
         if form.is_valid():
-            handle_uploaded_file(request.FILES['file'])
-            return HttpResponseRedirect('/success/url/')
+            print request.FILES['datafile'].__dict__
+
+            newdoc = DataFile(
+                name_in='',
+                datafile=request.FILES['datafile'],
+                processed=False,
+                email=request.POST['email'],
+                send_log=request.POST['send_log']
+            )
+            newdoc.save()
+
+            # Redirect to the document list after POST
+            return HttpResponseRedirect(reverse('qparser.views.list'))
     else:
-        form = UploadFileForm()
-    return render_to_response('datafile/upload.html', {'form': form})
-    
-    
-def handle_uploaded_file(file):
+        form = DataFileForm()  # A empty, unbound form
 
-    datafile = DataFile(
-        name_in = 'Blaat',
-        name_out = 'Bloot',
-        email='erwinhaasnoot@gmail.com',
+    # Load documents for the list page
+    documents = DataFile.objects.all()
 
+    # Render list page with the documents and the form
+    return render_to_response(
+        'list.html',
+        {'documents': documents, 'form': form},
+        context_instance=RequestContext(request)
     )
-    with open('some/file/name.txt', 'wb+') as destination:
-        for chunk in file.chunks():
-            destination.write(chunk)
