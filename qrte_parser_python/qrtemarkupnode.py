@@ -53,7 +53,7 @@ class QRTEMarkUpNode():
         self.name = name
 
 
-    def getColNames(self):
+    def get_column_names(self):
         if self.colNames is None:
             self.colNames = [self.columns[k] for k in self.columns] + [self.name] + [k for k in self.data]
 
@@ -61,24 +61,24 @@ class QRTEMarkUpNode():
             self.colNames = sorted(self.colNames)
 
             for child in self.childs:
-                self.colNames += child.getColNames()
+                self.colNames += child.get_column_names()
 
             # deduplicate:
 
-            self.colNames = self.makeUnique(self.colNames)
+            self.colNames = self.make_unique(self.colNames)
 
             return self.colNames
         else:
             return self.colNames
 
-    def writeData(self, file, outfile):
+    def write_data(self, file, outfile):
         """
 
         :param file:
         :param outfile:
         :return:
         """
-        columns = self.getColNames()
+        columns = self.get_column_names()
 
         # Ensure removal of output file
         try:
@@ -100,11 +100,11 @@ class QRTEMarkUpNode():
         csvgen.next()
         for row in csvgen:
             subject_data = OrderedDict(zip(headers, row))
-            self._writeData(subject_data, global_data, columns, outfile)
+            self._write_data(subject_data, global_data, columns, outfile)
 
         csvwriter.close()
 
-    def _writeData(self, subject_data, level_data, columns, outfile):
+    def _write_data(self, subject_data, level_data, columns, outfile):
         """
 
         :param subject_data:
@@ -123,15 +123,15 @@ class QRTEMarkUpNode():
                 log.warning(QRTEParserException(code=QRTEParserException.WARNING_MISSING_JSON_COL_KEY, subject=subject,
                                                 Key=key.split('_')[0]).message)
         for i in xrange(self.amount):
-            level_data.update(self.getLevelData(subject_data, level_data, i, ignore_json_col_keys))
+            level_data.update(self.get_level_data(subject_data, level_data, i, ignore_json_col_keys))
 
             if len(self.childs) != 0:
                 for child in self.childs:
-                    child._writeData(subject_data, level_data, columns, outfile)
+                    child._write_data(subject_data, level_data, columns, outfile)
             else:
                 csvwriter.write(level_data.values())
 
-    def getLevelData(self, subject_data, level_data, index=-1, ignore_json_col_keys=[]):
+    def get_level_data(self, subject_data, level_data, index=-1, ignore_json_col_keys=[]):
         """
 
         :param subject_data:
@@ -202,11 +202,11 @@ class QRTEMarkUpNode():
         :param exit_q_unique:
         :return:
         """
-        headers, blocks, ignore_columns, exit_questions = node.buildBlockMeta(file, exit_q_unique)
+        headers, blocks, ignore_columns, exit_questions = node.build_block_meta(file, exit_q_unique)
 
-        predef_columns = node.getPredefinedColumns()
+        predef_columns = node.get_predefined_columns()
 
-        top_level = node.getTopLevelNode()
+        top_level = node.get_top_level_node()
 
         for header in headers:
             if header == '':
@@ -240,7 +240,7 @@ class QRTEMarkUpNode():
         return node(**top_level)
 
     @classmethod
-    def isUnique(cls, L):
+    def is_unique(cls, L):
         """
 
         :param L:
@@ -250,7 +250,7 @@ class QRTEMarkUpNode():
 
 
     @classmethod
-    def buildBlockMeta(node, file, exit_q_unique=False):
+    def build_block_meta(node, file, exit_q_unique=False):
         """
         Builds MarkUp nodes from given QRTE data file.
         :param node: Class definition
@@ -266,7 +266,7 @@ class QRTEMarkUpNode():
 
         #Initialise block dictionary
         blocks = {}
-        ignore_columns = node.getIgnoreColumns()
+        ignore_columns = node.get_ignore_columns()
 
         #Skip next line
         next(csvgen)
@@ -288,12 +288,12 @@ class QRTEMarkUpNode():
                                               SubjectId=subject_id, Data=data[node.QRTE_columns])
                 exit_questions = data[node.QRTE_exitQuestions].split(node.delimiter_exit)
 
-                if not node.isUnique(exit_questions):
+                if not node.is_unique(exit_questions):
                     if not exit_q_unique:
                         raise QRTEParserException(code=QRTEParserException.ERR_UNIQUE_EXITQ, subject=data['V1'],
                                                   ExitQuestions=exit_questions, SubjectId=subject_id)
                     else:
-                        exit_questions = node.makeUnique(exit_questions)
+                        exit_questions = node.make_unique(exit_questions)
 
                 block_ids = []
 
@@ -314,7 +314,7 @@ class QRTEMarkUpNode():
                     block_ids += [block_id]
 
                     if exit_q not in blocks:
-                        blocks[exit_q] = node.getBottomLevelNode()
+                        blocks[exit_q] = node.get_bottom_level_node()
                         blocks[exit_q].update({
                             'jsonCol': ["%s_1_TEXT" % exit_q],
                             'name': '%sId' % exit_q,
@@ -329,7 +329,7 @@ class QRTEMarkUpNode():
                     blocks[exit_q]['columns'] = dict(zip(predef_columns[block_id], predef_columns[block_id]))
                     blocks[exit_q]['amount'] = max(trial_count - 1, blocks[exit_q]['amount'])
 
-                if not node.isUnique(block_ids):
+                if not node.is_unique(block_ids):
                     raise QRTEParserException(code=QRTEParserException.ERR_BLOCKID_NOT_UNIQUE, subject=subject,
                                               BlockIds=block_ids, SubjectId=subject_id)
             except QRTEParserException as e:
@@ -369,7 +369,7 @@ class QRTEMarkUpNode():
         return key, index
 
     @classmethod
-    def getBottomLevelNode(cls):
+    def get_bottom_level_node(cls):
         """
 
         :return:
@@ -377,15 +377,15 @@ class QRTEMarkUpNode():
         return dict(columns={}, amount=1, addIndex=1, name=None)
 
     @classmethod
-    def getTopLevelNode(cls):
+    def get_top_level_node(cls):
         """
 
         :return:
         """
-        return dict(childs=[], columns=cls.getPredefinedColumns(), amount=1, addIndex=0, name="topLevelId")
+        return dict(childs=[], columns=cls.get_predefined_columns(), amount=1, addIndex=0, name="topLevelId")
 
     @classmethod
-    def getPredefinedColumns(cls):
+    def get_predefined_columns(cls):
         """
 
         :return:
@@ -403,7 +403,7 @@ class QRTEMarkUpNode():
             V10="Finished")
 
     @classmethod
-    def getIgnoreColumns(cls):
+    def get_ignore_columns(cls):
         """
 
         :return:
@@ -411,7 +411,7 @@ class QRTEMarkUpNode():
         return [cls.QRTE_columns, cls.QRTE_idData, cls.QRTE_blockData, cls.QRTE_exitQuestions]
 
     @classmethod
-    def makeUnique(cls, arr):
+    def make_unique(cls, arr):
         """
 
         :param arr:

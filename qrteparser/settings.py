@@ -87,10 +87,22 @@ STATIC_URL = '/static/'
 
 # QRTEParser Specific settings
 
+if DEBUG == True:
+    EMAIL_BACKEND = 'django.core.mail.backends.console.EmailBackend'
+
+EMAIL_SUBJECT = ''
+EMAIL_REPORT = 'support@qrtengine.com'
+
+
 from multiprocessing import Pool
 
 FILES_IN = 'static/in/'
 FILES_OUT = 'static/out/'
+FILES_LOG = 'static/log/'
+
+WORKER_POOL_PROCESSES = 5
+WORKER_POOL_MAXTASKSPERCHILD = 10
 
 
-WORKER_POOL = Pool(processes=5, maxtasksperchild=5)
+WORKER_POOL = Pool(processes=WORKER_POOL_PROCESSES, maxtasksperchild=WORKER_POOL_MAXTASKSPERCHILD)
+WORKER_POOL = Pool(processes=WORKER_POOL_PROCESSES, maxtasksperchild=WORKER_POOL_MAXTASKSPERCHILD)

@@ -67,6 +67,7 @@ db.sqlite3
 
 static/in/*.*
 static/out/*.*
+static/log/*.*
 
 # Covers JetBrains IDEs: IntelliJ, RubyMine, PhpStorm, AppCode, PyCharm, CLion
 

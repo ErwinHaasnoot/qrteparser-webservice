@@ -25,9 +25,9 @@ class QRTEParser:
         self.exit_q_unique = exit_q_unique
 
     def _parse(self):
-        
+
         node = QRTEMarkUpNode.create(self.file, self.exit_q_unique)
-        node.writeData(self.file, self.outfile)
+        node.write_data(self.file, self.outfile)
         
         
         

@@ -5,7 +5,10 @@ from qrteexception import QRTEParserException
 
 def csvreader(file):
     """
-        Generator function that yields the lines from the csv file one by one as arrays
+    Generator function that yield a given qualtrics datafile line by line.
+    Can currently handle normale CSV and ZIP.
+    :param file: filename of input file
+    :return:
     """
     tokens = file.split('.')
     open_cmd = 'rU'
@@ -16,12 +19,14 @@ def csvreader(file):
         compression = None
 
     if compression is None:
+        # Line by line read of csv file
         with open(file, open_cmd + 'b') as csvfile:
             reader = csv.reader(csvfile, delimiter=',',quotechar='"')
             for row in reader:
                 yield row
 
     elif compression == 'zip':
+        # Buffered, line by line read of zip file
         zf = None
         try:
             with EnhZipFile(file) as zf:

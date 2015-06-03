@@ -10,4 +10,3 @@ rm db.sqlite3
 
 echo "migrate"
 ./manage.py migrate
-k

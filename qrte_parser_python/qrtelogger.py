@@ -1,5 +1,7 @@
 
 from inspect import getframeinfo, stack
+
+
 class QRTEParserLogger:
     LEVEL_SPAM = -1
     LEVEL_VERBOSE = 0
