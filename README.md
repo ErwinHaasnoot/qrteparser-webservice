@@ -1,18 +1,27 @@
 
-     ,-----.,--.                  ,--. ,---.   ,--.,------.  ,------.
-    '  .--./|  | ,---. ,--.,--. ,-|  || o   \  |  ||  .-.  \ |  .---'
-    |  |    |  || .-. ||  ||  |' .-. |`..'  |  |  ||  |  \  :|  `--, 
-    '  '--'\|  |' '-' ''  ''  '\ `-' | .'  /   |  ||  '--'  /|  `---.
-     `-----'`--' `---'  `----'  `---'  `--'    `--'`-------' `------'
-    ----------------------------------------------------------------- 
 
 
-Welcome to your Django project on Cloud9 IDE!
+Welcome to the QRTEParser Django webservice project!
 
-Your Django project is already fully setup. Just click the "Run" button to start
-the application. On first run you will be asked to create an admin user. You can
-access your application from 'https://qrteparser-sweeper-1.c9.io/' and the admin page from 
-'https://qrteparser-sweeper-1.c9.io/admin'.
+## Introduction
+
+This project is intended as a replacement for the QRTEParser written in Java. If you've found your way to this repository,
+you're most likely interested in hosting using the local python parser, or hosting your own webserver. However, for completeness sake, the webservice
+we offer can be found here:
+https://example.com
+
+## Installing Python
+
+Please look here for a guide on how to install python for your OS:
+
+
+## Quick Usage
+
+In case you want to run the parser without the webservice overhead, you can simply use parser.py found in the project's
+root directory
+
+    $ python parser.py path/to/file.csv
+
 
 ## Starting from the Terminal
 

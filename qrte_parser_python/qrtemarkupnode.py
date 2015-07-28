@@ -282,7 +282,7 @@ class QRTEMarkUpNode():
                     predef_columns = json.loads(data[node.QRTE_columns])
                 except KeyError:
                     raise QRTEParserException(code=QRTEParserException.ERR_MISSING_COLUMNS, subject=subject,
-                                              SubjectId=subject_id)
+                                              SubjectId=subject_id, column=node.QRTE_columns)
                 except Exception as e:
                     raise QRTEParserException(code=QRTEParserException.ERR_COLUMN_INVALID_JSON, subject=subject,
                                               SubjectId=subject_id, Data=data[node.QRTE_columns])
@@ -335,11 +335,6 @@ class QRTEMarkUpNode():
             except QRTEParserException as e:
                 log.error(e.message)
                 continue
-            except Exception as e:
-                log.error(
-                    'Could not check subject %s, due to error %s. This is a serious error, needs to be investigated.',
-                    (subject, e.message))
-                raise e
 
         return headers, blocks, ignore_columns, exit_questions
 

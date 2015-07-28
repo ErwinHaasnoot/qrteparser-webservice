@@ -28,6 +28,7 @@ class QRTEParserException(Exception):
         ERR_UNKNOWN: 'ERR_UNKNOWN',
         ERR_NONE: 'ERR_NONE',
         # META BLOCK ERROR
+        ERR_MISSING_COLUMNS: 'ERR_MISSING_COLUMNS',
         ERR_UNIQUE_EXITQ: 'ERR_UNIQUE_EXITQ',
         ERR_MISSING_INDEX_1: 'ERR_MISSING_INDEX_1',
         ERR_COLUMN_INVALID_JSON: 'ERR_COLUMN_INVALID_JSON',
@@ -56,6 +57,7 @@ class QRTEParserException(Exception):
         ERR_UNKNOWN: 'This is an unknown error. Please report immediately to support@qrtengine.com',
         ERR_NONE: 'No error! (Huh?)',
         ERR_UNIQUE_EXITQ: 'Exit questions have not been uniquely defined, or the respondent has run through the same block twice. Either way, causes very likely loss of data. Please fix.',
+        ERR_MISSING_COLUMNS: 'The specified column seems to be missing from the data file. Please check if this column has been pre-defined in the Embedded Data block in the Survey Flow.',
         ERR_MISSING_INDEX_1: 'Exit question with index 1 is missing. Either Subject did not go through Indicated block, or wrong row indices are used in Loop & Merge spreadsheet for Trial block with mentioned Exit Tag. Please fix.',
         ERR_COLUMN_INVALID_JSON: 'Column cache is not valid JSON. Likely that respondent quit the survey early. If this is not the case, please report immediately to support@qrtengine.com, with the survey .qsf and the original data file.',
         ERR_MISSING_BLOCKID: 'Block Id was not properly stored. Unknown cause, please report immediately to support@qrtengine.com, including survey .qsf file and original data file.',
