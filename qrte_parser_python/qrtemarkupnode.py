@@ -1,6 +1,6 @@
-from qrtelogger import log
-from qrteexception import QRTEParserException
-from qrtecsv import csvreader, csvwriter
+from .qrtelogger import log
+from .qrteexception import QRTEParserException
+from .qrtecsv import csvreader, csvwriter
 import json, os
 from collections import OrderedDict
 from decimal import Decimal
@@ -94,10 +94,10 @@ class QRTEMarkUpNode():
         csvgen = csvreader(file)
 
         # Skip first two lines
-        headers = csvgen.next()
+        headers = next(csvgen)
         # Fix file header
         headers[0] = 'V1'
-        csvgen.next()
+        next(csvgen)
         for row in csvgen:
             subject_data = OrderedDict(zip(headers, row))
             self._write_data(subject_data, global_data, columns, outfile)
@@ -122,7 +122,7 @@ class QRTEMarkUpNode():
                 ignore_json_col_keys.append(key)
                 log.warning(QRTEParserException(code=QRTEParserException.WARNING_MISSING_JSON_COL_KEY, subject=subject,
                                                 Key=key.split('_')[0]).message)
-        for i in xrange(self.amount):
+        for i in range(self.amount):
             level_data.update(self.get_level_data(subject_data, level_data, i, ignore_json_col_keys))
 
             if len(self.childs) != 0:
@@ -333,7 +333,7 @@ class QRTEMarkUpNode():
                     raise QRTEParserException(code=QRTEParserException.ERR_BLOCKID_NOT_UNIQUE, subject=subject,
                                               BlockIds=block_ids, SubjectId=subject_id)
             except QRTEParserException as e:
-                log.error(e.message)
+                log.error(e.__str__())
                 continue
 
         return headers, blocks, ignore_columns, exit_questions
