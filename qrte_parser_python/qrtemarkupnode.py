@@ -3,7 +3,6 @@ from .qrteexception import QRTEParserException
 from .qrtecsv import csvreader, csvwriter
 import json, os
 from collections import OrderedDict
-from decimal import Decimal
 
 
 class QRTEMarkUpNode():
