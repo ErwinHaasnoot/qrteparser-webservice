@@ -1,4 +1,6 @@
 from __future__ import print_function
+from builtins import str
+from past.builtins import basestring
 from django.db import models
 from django.conf import settings
 from multiprocessing import Pool

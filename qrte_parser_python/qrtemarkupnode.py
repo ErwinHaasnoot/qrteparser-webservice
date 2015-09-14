@@ -1,3 +1,9 @@
+from __future__ import print_function
+from builtins import next
+
+from builtins import zip
+from builtins import range
+from builtins import object
 from .qrtelogger import log
 from .qrteexception import QRTEParserException
 from .qrtecsv import csvreader, csvwriter
@@ -5,7 +11,7 @@ import json, os
 from collections import OrderedDict
 
 
-class QRTEMarkUpNode():
+class QRTEMarkUpNode(object):
     QRTE_exitQuestions = 'QRTE_exitQuestions'
     QRTE_blockData = 'QRTE_blockData'
     QRTE_idData = 'QRTE_idData'
@@ -93,12 +99,15 @@ class QRTEMarkUpNode():
         csvgen = csvreader(file)
 
         # Skip first two lines
-        headers = next(csvgen)
-        # Fix file header
-        headers[0] = 'V1'
-        next(csvgen)
+        try:
+            headers = next(csvgen)
+            # Fix file header
+            headers[0] = 'V1'
+            next(csvgen)
+        except:
+            pass
         for row in csvgen:
-            subject_data = OrderedDict(zip(headers, row))
+            subject_data = OrderedDict(list(zip(headers, row)))
             self._write_data(subject_data, global_data, columns, outfile)
 
         csvwriter.close()
@@ -128,7 +137,7 @@ class QRTEMarkUpNode():
                 for child in self.childs:
                     child._write_data(subject_data, level_data, columns, outfile)
             else:
-                csvwriter.write(level_data.values())
+                csvwriter.write(list(level_data.values()))
 
     def get_level_data(self, subject_data, level_data, index=-1, ignore_json_col_keys=[]):
         """
@@ -258,9 +267,12 @@ class QRTEMarkUpNode():
         :return:
         """
         csvgen = csvreader(file)
-
-        # Get headers
-        headers = next(csvgen)
+        try:
+            # Get headers
+            headers = next(csvgen)
+            next(csvgen)
+        except StopIteration:
+            raise
         headers[0] = 'V1'
 
         #Initialise block dictionary
@@ -268,13 +280,12 @@ class QRTEMarkUpNode():
         ignore_columns = node.get_ignore_columns()
 
         #Skip next line
-        next(csvgen)
 
         subject_id = 0
         for values in csvgen:
             subject_id += 1
             try:
-                data = dict(zip(headers, values))
+                data = dict(list(zip(headers, values)))
                 subject = data['V1']
 
                 try:
@@ -325,7 +336,7 @@ class QRTEMarkUpNode():
                         raise QRTEParserException(code=QRTEParserException.ERR_MISSING_BLOCKID_FROM_COLUMNS,
                                                   subject=subject, BlockId=block_id, SubjectId=subject_id)
 
-                    blocks[exit_q]['columns'] = dict(zip(predef_columns[block_id], predef_columns[block_id]))
+                    blocks[exit_q]['columns'] = dict(list(zip(predef_columns[block_id], predef_columns[block_id])))
                     blocks[exit_q]['amount'] = max(trial_count - 1, blocks[exit_q]['amount'])
 
                 if not node.is_unique(block_ids):

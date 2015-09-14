@@ -118,3 +118,5 @@ crashlytics-build.properties
 
 # No kernprof files
 *.lprof
+
+*.bak

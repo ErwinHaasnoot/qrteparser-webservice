@@ -1,9 +1,9 @@
 from __future__ import print_function
+from builtins import object
 import csv
 from .bufferedzipfile import EnhZipFile
 import gzip
 from .qrteexception import QRTEParserException
-import io
 
 def csvreader(file):
     """
@@ -21,16 +21,10 @@ def csvreader(file):
         compression = None
 
     if compression is None:
-        # Line by line read of csv file
-        encodings = ['utf-8', 'windows-1250', 'windows-1252',"ISO-8859-1"]
-        for e in encodings:
-            try:
-                with io.open(file, open_cmd + 't',encoding=e) as csvfile:
-                    reader = csv.reader(csvfile, delimiter=',',quotechar='"')
-                    for row in reader:
-                        yield row
-            except:
-                pass
+        with open(file, open_cmd) as csvfile:
+            reader = csv.reader(csvfile, delimiter=',',quotechar='"')
+            for row in reader:
+                yield row
 
 
     elif compression == 'zip':
@@ -52,7 +46,7 @@ def csvreader(file):
             print(e)
             raise QRTEParserException(code=QRTEParserException.ERR_ZIP_INVALID,subject=None,ZipFile=file)
 
-class csvwriter():
+class csvwriter(object):
 
     MAXIMUM_FILE_SIZE = 524288000
     zip = None

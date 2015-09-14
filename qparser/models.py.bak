@@ -1,3 +1,4 @@
+from __future__ import print_function
 from django.db import models
 from django.conf import settings
 from multiprocessing import Pool
@@ -112,7 +113,7 @@ def ParseUploadedFile(datafile_pk):
     input_file = "%s%s.%s" % (settings.FILES_IN,datafile.name_system,datafile.file_type)
     output_file = settings.FILES_OUT + datafile.name_out
 
-    print "Running parser on file: %s" % input_file
+    print("Running parser on file: %s" % input_file)
 
     # Set stdout & err to log file
 
@@ -133,7 +134,7 @@ def ParseUploadedFile(datafile_pk):
         # Send email that QRTEParser ran into known exception.
 
         # Update database with fail report
-        print e
+        print(e)
         raise e
         pass
     except Exception as e:
@@ -142,11 +143,11 @@ def ParseUploadedFile(datafile_pk):
         # Send email that QRTEParser ran into unknown exception. Also send to support@qrtengine.com
 
         # Update database with fail report
-        print e
+        print(e)
         raise e
         pass
 
-    print "Parsing finished with output file: %s" % output_file
+    print("Parsing finished with output file: %s" % output_file)
 
     pass
 
