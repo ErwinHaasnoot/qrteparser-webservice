@@ -119,7 +119,7 @@ def ParseUploadedFile(datafile_pk):
 
     # Set stdout & err to log file
 
-    result = None331
+    result = None
     try:
         # Try parsing the file
         input_file = "%s%s.%s" % (settings.FILES_IN,datafile.name_system,datafile.file_type)

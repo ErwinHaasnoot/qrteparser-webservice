@@ -62,7 +62,7 @@ class QRTEMarkUpNode(object):
         if self.colNames is None:
             self.colNames = [self.columns[k] for k in self.columns] + [self.name] + [k for k in self.data]
 
-            # Deduplicate and sort array
+            # sort array
             self.colNames = sorted(self.colNames)
 
             for child in self.childs:
@@ -226,15 +226,6 @@ class QRTEMarkUpNode(object):
             key, index = node.splitkey(header)
 
             if (index is None):
-                # blocks[key]['amount'] = max(blocks[key]['amount'], index)
-                #     put_key = key
-                #     put_val = key
-
-                #     if put_key in predef_columns:
-                #         put_val = predef_columns[put_key]
-                #     if not ( put_key in ignore_columns or put_val in ignore_columns or put_key == '' or put_val == ''):
-                #         blocks[key]['columns'][put_key] = put_val
-                # else:
                 put_key = put_val = key
 
                 if put_key in predef_columns:
@@ -278,7 +269,7 @@ class QRTEMarkUpNode(object):
         #Initialise block dictionary
         blocks = {}
         ignore_columns = node.get_ignore_columns()
-
+        exit_questions = None
         #Skip next line
 
         subject_id = 0
@@ -311,11 +302,18 @@ class QRTEMarkUpNode(object):
 
                     trial_count = 1
                     block_id = None
+                    columns = {}
                     if "%s_1_TEXT(1)" % (exit_q,) not in data or data["%s_1_TEXT(1)" % (exit_q,)] == '':
                         raise QRTEParserException(code=QRTEParserException.ERR_MISSING_INDEX_1, subject=subject,
                                                   ExitQuestion=exit_q, SubjectId=subject_id)
                     while ("%s_1_TEXT(%s)" % (exit_q, trial_count) in data):
                         block_id = block_id or data["%s_2_TEXT(%s)" % (exit_q, trial_count)]
+                        # If columns cache is faulty, loop over full data to get all columns
+                        try:
+                            for key, value in json.loads(data["%s_1_TEXT(%s)" % (exit_q, trial_count)]).iteritems():
+                                columns[key] = key
+                        except:
+                            pass
                         trial_count += 1
                     if block_id is None:
                         raise QRTEParserException(code=QRTEParserException.ERR_MISSING_BLOCKID, subject=subject,
@@ -337,6 +335,7 @@ class QRTEMarkUpNode(object):
                                                   subject=subject, BlockId=block_id, SubjectId=subject_id)
 
                     blocks[exit_q]['columns'] = dict(list(zip(predef_columns[block_id], predef_columns[block_id])))
+                    blocks[exit_q]['columns'].update(columns)
                     blocks[exit_q]['amount'] = max(trial_count - 1, blocks[exit_q]['amount'])
 
                 if not node.is_unique(block_ids):
@@ -345,7 +344,8 @@ class QRTEMarkUpNode(object):
             except QRTEParserException as e:
                 log.error(e.__str__())
                 continue
-
+        if exit_questions is None:
+            raise QRTEParserException
         return headers, blocks, ignore_columns, exit_questions
 
     # HELPER FUNCTIONS
@@ -358,6 +358,7 @@ class QRTEMarkUpNode(object):
         :return:
         """
         index = None
+        key = key if isinstance(key, unicode) else unicode("%s" % key, 'utf-8')
         tokens = key.split('(')
 
         if (len(tokens) < 2):

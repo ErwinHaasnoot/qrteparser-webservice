@@ -1,5 +1,6 @@
 from __future__ import print_function
 from builtins import object
+from unicode_csv_writer import UnicodeWriter, UnicodeReader
 import csv
 from .bufferedzipfile import EnhZipFile
 import gzip
@@ -8,7 +9,7 @@ from .qrteexception import QRTEParserException
 def csvreader(file):
     """
     Generator function that yield a given qualtrics datafile line by line.
-    Can currently handle normale CSV and ZIP.
+    Can currently handle normal CSV and ZIP.
     :param file: filename of input file
     :return:
     """
@@ -22,7 +23,7 @@ def csvreader(file):
 
     if compression is None:
         with open(file, open_cmd) as csvfile:
-            reader = csv.reader(csvfile, delimiter=',',quotechar='"')
+            reader = UnicodeReader(csvfile, delimiter=',', quotechar='"')
             for row in reader:
                 yield row
 
@@ -39,7 +40,7 @@ def csvreader(file):
                 if len(files) > 1:
                     raise QRTEParserException(code=QRTEParserException.ERR_ZIP_CONTAINS_TWO_OR_MORE_FILES,subject=None,ZipFile=file)
                 with zf.open(files[0],open_cmd) as csvfile:
-                    reader = csv.reader(csvfile, delimiter=',',quotechar='"')
+                    reader = UnicodeReader(csvfile, delimiter=',', quotechar='"')
                     for row in reader:
                         yield row
         except Exception as e:
@@ -62,7 +63,7 @@ class csvwriter(object):
         # cls.filehandler = cls.zip.start_entry(cls.zipinfo)
         cls.filehandler = gzip.open(file+'.gz','wt')
         # cls.filehandler = open(file,'wb')
-        cls.writer = csv.writer(cls.filehandler, delimiter=',',quotechar='"', quoting=csv.QUOTE_NONNUMERIC)
+        cls.writer = UnicodeWriter(cls.filehandler, delimiter=',', quotechar='"', quoting=csv.QUOTE_NONNUMERIC)
 
     @classmethod
     def write(cls,arr):
@@ -70,8 +71,6 @@ class csvwriter(object):
 
     @classmethod
     def close(cls):
-
-
         cls.filehandler.close()
         #cls.zip.close()
         
