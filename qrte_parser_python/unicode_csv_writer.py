@@ -26,6 +26,7 @@ class UnicodeReader:
     """
 
     def __init__(self, f, dialect=csv.excel, encoding="utf-8", **kwds):
+        # Skip first byte (2 nibbles?)
         f = UTF8Recoder(f, encoding)
         self.reader = csv.reader(f, dialect=dialect, **kwds)
 
