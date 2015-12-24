@@ -1,6 +1,3 @@
-
-
-
 Welcome to the QRTEParser Django webservice project!
 
 ## Introduction
@@ -9,6 +6,13 @@ This project is intended as a replacement for the QRTEParser written in Java. If
 you're most likely interested in hosting using the local python parser, or hosting your own webserver. However, for completeness sake, the webservice
 we offer can be found here:
 https://example.com
+
+## Warning
+
+Currently, the parser has only been tested for Python2.7. It may or may not work for Python3. You can check which version of Python you're running by doing
+
+    $ python -v
+
 
 ## Installing Python
 
