@@ -1,9 +1,4 @@
-from __future__ import print_function
-from builtins import next
 
-from builtins import zip
-from builtins import range
-from builtins import object
 from .qrtelogger import log
 from .qrteexception import QRTEParserException
 from .qrtecsv import csvreader, csvwriter

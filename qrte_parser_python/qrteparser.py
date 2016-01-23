@@ -1,5 +1,4 @@
 from __future__ import print_function
-from builtins import object
 from .qrtelogger import QRTEParserLogger,log
 from .qrtemarkupnode import QRTEMarkUpNode
 
@@ -7,8 +6,9 @@ from .qrtemarkupnode import QRTEMarkUpNode
     Main file for the QRTE Python Parser.
     
 """
-        
-class QRTEParser(object):
+
+
+class QRTEParser():
     
     headers = []
     

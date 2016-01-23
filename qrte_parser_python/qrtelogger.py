@@ -1,10 +1,9 @@
 from __future__ import print_function
-from builtins import object
 
 from inspect import getframeinfo, stack
 
 
-class QRTEParserLogger(object):
+class QRTEParserLogger():
     LEVEL_SPAM = -1
     LEVEL_VERBOSE = 0
     LEVEL_SILENT = 1

@@ -1,5 +1,4 @@
 from __future__ import print_function
-from builtins import object
 from .unicode_csv_writer import UnicodeWriter, UnicodeReader
 import csv
 from .bufferedzipfile import EnhZipFile
