@@ -1,4 +1,3 @@
-
 from .qrtelogger import log
 from .qrteexception import QRTEParserException
 from .qrtecsv import csvreader, csvwriter

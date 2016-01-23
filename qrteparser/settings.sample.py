@@ -10,8 +10,8 @@ https://docs.djangoproject.com/en/1.7/ref/settings/
 
 # Build paths inside the project like this: os.path.join(BASE_DIR, ...)
 import os
-BASE_DIR = os.path.dirname(os.path.dirname(__file__))
 
+BASE_DIR = os.path.dirname(os.path.dirname(__file__))
 
 # Quick-start development settings - unsuitable for production
 # See https://docs.djangoproject.com/en/1.7/howto/deployment/checklist/
@@ -20,13 +20,12 @@ BASE_DIR = os.path.dirname(os.path.dirname(__file__))
 SECRET_KEY = 'trzt4x78f+v4_bg$^lx&8m$67v=)_-_6_7%1jx0gzvlbn0g*%9'
 
 # SECURITY WARNING: don't run with debug turned on in production!
-DEBUG = True
+DEBUG = False
 
-TEMPLATE_DEBUG = True
+TEMPLATE_DEBUG = False
 
 ALLOWED_HOSTS = []
 SECURE_PROXY_SSL_HEADER = ('HTTP_X_FORWARDED_PROTO', 'https')
-
 
 # Application definition
 
@@ -37,7 +36,7 @@ INSTALLED_APPS = (
     'django.contrib.sessions',
     'django.contrib.messages',
     'django.contrib.staticfiles',
-    'qparser',  
+    'qparser',
 )
 
 MIDDLEWARE_CLASSES = (
@@ -53,7 +52,6 @@ MIDDLEWARE_CLASSES = (
 ROOT_URLCONF = 'qrteparser.urls'
 
 WSGI_APPLICATION = 'qrteparser.wsgi.application'
-
 
 # Database
 # https://docs.djangoproject.com/en/1.7/ref/settings/#databases
@@ -78,12 +76,10 @@ USE_L10N = True
 
 USE_TZ = True
 
-
 # Static files (CSS, JavaScript, Images)
 # https://docs.djangoproject.com/en/1.7/howto/static-files/
 
 STATIC_URL = '/static/'
-
 
 # QRTEParser Specific settings
 
@@ -92,7 +88,6 @@ if DEBUG == True:
 
 EMAIL_SUBJECT = ''
 EMAIL_REPORT = 'support@qrtengine.com'
-
 
 from multiprocessing import Pool
 

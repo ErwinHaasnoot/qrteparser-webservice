@@ -133,3 +133,5 @@ pip-selfcheck.json
 [Ll]ocal
 
 *.bak
+
+*/settings.py
