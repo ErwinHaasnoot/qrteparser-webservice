@@ -1,12 +1,13 @@
 from django.conf.urls import patterns, include, url
 from django.contrib import admin
-from qparser.views import list
+from qparser.views import index, download, download_file, download_log
 
-urlpatterns = patterns('qparser.views',
-    # Examples:
-    # url(r'^$', 'qrteparser.views.home', name='home'),
-    # url(r'^blog/', include('blog.urls')),
-
+urlpatterns = [
     url(r'^admin/', include(admin.site.urls)),
-    url(r'^list/$', 'list', name='list'),
-)
+
+    url(r'^download/file/', download_file, name='download_file'),
+    url(r'^download/log/', download_log, name='download_log'),
+    url(r'^download/', download, name='download'),
+    url(r'', index, name='index'),
+
+]

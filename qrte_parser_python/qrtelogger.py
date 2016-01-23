@@ -1,7 +1,5 @@
-from __future__ import print_function
-
 from inspect import getframeinfo, stack
-
+import sys
 
 class QRTEParserLogger():
     LEVEL_SPAM = -1
@@ -13,12 +11,16 @@ class QRTEParserLogger():
     
     DEFAULT_LEVEL = 0
     LISTENING_THRESHOLD = 0
+
+    OUT = sys.stdout
+
     def __init__(self, formatstr, vals = (), level = None, stack_level = 0):
         caller = getframeinfo(stack()[1+stack_level][0])
         level = level or self.DEFAULT_LEVEL
         if level >= self.LISTENING_THRESHOLD:
             msg = formatstr % vals
-            print("[%s:%d] %s" % (caller.filename, caller.lineno, msg))
+            self.OUT.write("[%s:%d] %s" % (caller.filename, caller.lineno, msg))
+            self.OUT.flush()
             
     @classmethod
     def exception(cls,formatstr, vals = ()):

@@ -1,0 +1,54 @@
+<!DOCTYPE html>
+<html lang=en>
+<head>
+    <title>Online QRTE parser</title>
+    <style>
+        body {
+            background: white;
+            font-family: verdana;
+        }
+
+        section {
+            width: 700px;
+            background: #f9f9f9;
+            color: black;
+            border-radius: 1em;
+            padding: 1em;
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            margin-right: -50%;
+            transform: translate(-50%, -50%);
+        }
+    </style>
+</head>
+<body>
+<section>
+    <h1>Welcome to the online QRTE parser</h1>
+
+    <p>Parsing a data file requires the following steps:</p>
+
+    <ol>
+        <li>Enter your e-mail address</li>
+        <li>Upload your data file. The file will be parsed, this may take minutes to an hour.</li>
+        <li>You will receive an e-mail when parsing is complete, this e-mail contains a unique link. Use the link within
+            24 hours to open a web page on which you can download your parsed data file. 24 Hours after the e-mail has
+            been sent, the parsed data file will automatically be deleted, regardless of whether is has been downloaded.
+        </li>
+        <li>That's it!</li>
+    </ol>
+    <form action="{% url 'index' %}" method="post" enctype="multipart/form-data">
+        {% csrf_token %}
+        {% for field in form %}
+            <div class="fieldWrapper">
+                {{ field.errors }}
+                {{ field.label_tag }} {{ field }}
+            </div>
+        {% endfor %}
+        <p><input type="submit" value="Upload"/></p>
+    </form>
+    (note: uploading large files may take a while!)
+
+</section>
+</body>
+</html>

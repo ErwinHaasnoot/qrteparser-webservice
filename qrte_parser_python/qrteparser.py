@@ -15,6 +15,8 @@ class QRTEParser():
         parser = QRTEParser(file, outfile, exit_q_unique)
         parser._parse(version=version, entrance=entrance)
 
+        return True
+
     def __init__(self, file, outfile, exit_q_unique):
         self.file = file
         self.outfile = outfile or file + '_out'
