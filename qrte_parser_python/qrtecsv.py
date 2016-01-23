@@ -60,7 +60,8 @@ class csvwriter(object):
         #cls.zipinfo = zipfile.ZipInfo(os.path.basename(file),time.localtime()[:6])
 
         # cls.filehandler = cls.zip.start_entry(cls.zipinfo)
-        cls.filehandler = gzip.open(file+'.gz','wt')
+        # changed mode from invalid 'wt' to 'wb'
+        cls.filehandler = gzip.open(file+'.gz','wb')
         # cls.filehandler = open(file,'wb')
         cls.writer = UnicodeWriter(cls.filehandler, delimiter=',', quotechar='"', quoting=csv.QUOTE_NONNUMERIC)
 
