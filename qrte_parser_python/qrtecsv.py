@@ -1,4 +1,3 @@
-from __future__ import print_function
 from .unicode_csv_writer import UnicodeWriter, UnicodeReader
 import csv
 from .bufferedzipfile import EnhZipFile
@@ -7,7 +6,7 @@ from .qrteexception import QRTEParserException
 
 def csvreader(file):
     """
-    Generator function that yield a given qualtrics datafile line by line.
+    Generator function that yields a given qualtrics datafile line by line.
     Can currently handle normal CSV and ZIP.
     :param file: filename of input file
     :return:
@@ -55,11 +54,6 @@ class csvwriter(object):
     filehandler = None
     @classmethod
     def open(cls,file):
-        #cls.zip = EnhZipFile(file + '.zip',compression=zipfile.ZIP_DEFLATED,mode='w')
-
-        #cls.zipinfo = zipfile.ZipInfo(os.path.basename(file),time.localtime()[:6])
-
-        # cls.filehandler = cls.zip.start_entry(cls.zipinfo)
         # changed mode from invalid 'wt' to 'wb'
         cls.filehandler = gzip.open(file+'.gz','wb')
         # cls.filehandler = open(file,'wb')
@@ -72,5 +66,4 @@ class csvwriter(object):
     @classmethod
     def close(cls):
         cls.filehandler.close()
-        #cls.zip.close()
         

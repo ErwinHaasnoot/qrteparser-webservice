@@ -9,10 +9,14 @@ https://example.com
 
 ## Warning
 
-Currently, the parser has only been tested for Python2.7. It may or may not work for Python3. You can check which version of Python you're running by doing
+Currently, the parser has only been tested for Python2.7. It will not work for Python3 You can check which version of Python you're running by doing
 
     $ python -v
 
+Generally, both python3 and python2 are installed on pc's. If your python is linked to python3, you can check whether any of the following work:
+
+    python2 -v
+    python27 -v
 
 ## Installing Python
 
