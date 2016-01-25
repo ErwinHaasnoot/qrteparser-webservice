@@ -18,6 +18,7 @@ BASE_DIR = os.path.dirname(os.path.dirname(__file__))
 
 # SECURITY WARNING: keep the secret key used in production secret!
 SECRET_KEY = 'trzt4x78f+v4_bg$^lx&8m$67v=)_-_6_7%1jx0gzvlbn0g*%9'
+assert SECRET_KEY != 'trzt4x78f+v4_bg$^lx&8m$67v=)_-_6_7%1jx0gzvlbn0g*%9', "Please change the secret key, generate a new one for each install of this project"
 
 # SECURITY WARNING: don't run with debug turned on in production!
 DEBUG = False
@@ -106,19 +107,13 @@ STATIC_URL = '/static/'
 
 # QRTEParser Specific settings
 
-if DEBUG == True:
-    EMAIL_BACKEND = 'django.core.mail.backends.console.EmailBackend'
+EMAIL_API_KEY = 'Change this'
+assert EMAIL_API_KEY != 'Change this', "Please change the API key of the sendmail API to a proper API key (or don't use sendmail)"
 
 EMAIL_SUBJECT = ''
 EMAIL_REPORT = 'support@qrtengine.com'
 
-from multiprocessing import Pool
-
 FILES_IN = 'static/in/'
 FILES_OUT = 'static/out/'
 FILES_LOG = 'static/log/'
-
-WORKER_POOL_PROCESSES = 5
-WORKER_POOL_MAXTASKSPERCHILD = 10
-
 WORKER_POOL = Pool(processes=WORKER_POOL_PROCESSES, maxtasksperchild=WORKER_POOL_MAXTASKSPERCHILD)

@@ -39,9 +39,13 @@ def index(request):
                     host_name=HttpRequest.get_host(request)
             )
             newdoc.save()
+            tpl = get_template('email/confirmation.html')
+            send_mail(newdoc.email, '[QRTEParser] Confirmation of submission %s' % newdoc.name_in, tpl.render({
+                'filename': newdoc.name_in
+            }
+            ))
             p = Process(target=ParseUploadedFile, args=(newdoc.pk,))
             p.start()
-
             # Redirect to the document list after POST
 
             return render_to_response(
