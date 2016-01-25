@@ -105,8 +105,7 @@ def download_log(request):
         return render_to_response('qparser/couldnotfindfile.html', status=404)
     df = DataFile.objects.get(download_uuid=UUID(request.GET['uuid']))
     if df is not None:
-        print(df.host_name)
-        with open(settings.FILES_LOG + df.name_log + '.log') as f:
+        with open(settings.FILES_LOG + df.name_system + '.log') as f:
 
             return HttpResponse(f)
     else:

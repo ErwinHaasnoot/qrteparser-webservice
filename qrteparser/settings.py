@@ -17,12 +17,10 @@ BASE_DIR = os.path.dirname(os.path.dirname(__file__))
 # See https://docs.djangoproject.com/en/1.7/howto/deployment/checklist/
 
 # SECURITY WARNING: keep the secret key used in production secret!
-SECRET_KEY = 'trzt4x78f+v4_bg$^lx&8m$67v=)_-_6_7%1jx0gzvlbn0g*%9'
+SECRET_KEY = 'h3rn+%ah20xa_l@3e(da=7v)n0bff6$*#g-+)#+(!*_sb0#7x!'
 
 # SECURITY WARNING: don't run with debug turned on in production!
 DEBUG = True
-
-TEMPLATE_DEBUG = True
 
 ALLOWED_HOSTS = []
 SECURE_PROXY_SSL_HEADER = ('HTTP_X_FORWARDED_PROTO', 'https')
@@ -49,6 +47,30 @@ MIDDLEWARE_CLASSES = (
     'django.contrib.messages.middleware.MessageMiddleware',
     'django.middleware.clickjacking.XFrameOptionsMiddleware',
 )
+
+TEMPLATES = [
+    {
+        'BACKEND': 'django.template.backends.django.DjangoTemplates',
+        'DIRS': [
+            # insert your TEMPLATE_DIRS here
+            'qparser/templates'
+        ],
+        'APP_DIRS': True,
+        'OPTIONS': {
+            'context_processors': [
+                # Insert your TEMPLATE_CONTEXT_PROCESSORS here or use this
+                # list if you haven't customized them:
+                'django.contrib.auth.context_processors.auth',
+                'django.template.context_processors.debug',
+                'django.template.context_processors.i18n',
+                'django.template.context_processors.media',
+                'django.template.context_processors.static',
+                'django.template.context_processors.tz',
+                'django.contrib.messages.context_processors.messages',
+            ],
+        },
+    },
+]
 
 ROOT_URLCONF = 'qrteparser.urls'
 
@@ -86,21 +108,10 @@ STATIC_URL = '/static/'
 
 
 # QRTEParser Specific settings
+EMAIL_API_KEY = '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'
 
-if DEBUG == True:
-    EMAIL_BACKEND = 'django.core.mail.backends.console.EmailBackend'
-
-EMAIL_SUBJECT = ''
-EMAIL_REPORT = 'support@qrtengine.com'
-
-
-from multiprocessing import Pool
+EMAIL_SENDER = 'support@qrtengine.com'
 
 FILES_IN = 'static/in/'
 FILES_OUT = 'static/out/'
 FILES_LOG = 'static/log/'
-
-WORKER_POOL_PROCESSES = 5
-WORKER_POOL_MAXTASKSPERCHILD = 10
-
-WORKER_POOL = Pool(processes=WORKER_POOL_PROCESSES, maxtasksperchild=WORKER_POOL_MAXTASKSPERCHILD)

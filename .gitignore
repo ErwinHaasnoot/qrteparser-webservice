@@ -134,4 +134,4 @@ pip-selfcheck.json
 
 *.bak
 
-*/settings.py
+qrteparser/settings.py
