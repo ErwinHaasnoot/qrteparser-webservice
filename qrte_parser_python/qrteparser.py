@@ -27,7 +27,7 @@ class QRTEParser():
         node = QRTEMarkUpNode.create(self.file, self.exit_q_unique)
         # Add version information
         node.data['Parser[Version]'] = version
-        node.data['Parser[Type'] = entrance
+        node.data['Parser[Type]'] = entrance
         node.write_data(self.file, self.outfile)
 
 
