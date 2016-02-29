@@ -66,3 +66,11 @@ In case you want to run your Django application from the terminal just run:
 
 QRTEngine website can be found at:
     www.qrtengine.com
+    
+## Known Errors
+
+Older versions of the parser had the following error happening consistently:
+
+    ImportError: No module named builtins
+
+builtins was required for Python2/3 hybrid support, but since the parser has been made Python-2 ONLY, builtins is no longer required, and as such this error should have been fixed.
